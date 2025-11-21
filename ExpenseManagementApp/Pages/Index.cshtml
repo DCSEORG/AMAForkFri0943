@@ -1,0 +1,170 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "My Expenses";
+}
+
+@if (!string.IsNullOrEmpty(Model.ErrorMessage))
+{
+    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+        <strong>Database Connection Issue:</strong> @Model.ErrorMessage
+        <br/><small>Displaying dummy data for demonstration purposes.</small>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<div class="container-fluid py-4">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h2 class="fw-bold text-primary">
+                <i class="bi bi-receipt-cutoff me-2"></i>My Expenses
+            </h2>
+            <p class="text-muted">Track and manage your expense submissions</p>
+        </div>
+        <div class="col-md-4 text-end">
+            <a href="/CreateExpense" class="btn btn-primary btn-lg">
+                <i class="bi bi-plus-circle me-2"></i>New Expense
+            </a>
+        </div>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="text-muted mb-1 small">Total Expenses</p>
+                            <h3 class="fw-bold mb-0">@Model.Expenses.Count</h3>
+                        </div>
+                        <div class="bg-primary bg-opacity-10 p-3 rounded-circle">
+                            <i class="bi bi-file-earmark-text text-primary fs-4"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="text-muted mb-1 small">Pending</p>
+                            <h3 class="fw-bold mb-0">@Model.Expenses.Count(e => e.StatusName == "Submitted")</h3>
+                        </div>
+                        <div class="bg-warning bg-opacity-10 p-3 rounded-circle">
+                            <i class="bi bi-clock-history text-warning fs-4"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="text-muted mb-1 small">Approved</p>
+                            <h3 class="fw-bold mb-0">@Model.Expenses.Count(e => e.StatusName == "Approved")</h3>
+                        </div>
+                        <div class="bg-success bg-opacity-10 p-3 rounded-circle">
+                            <i class="bi bi-check-circle text-success fs-4"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="text-muted mb-1 small">Total Amount</p>
+                            <h3 class="fw-bold mb-0">£@Model.Expenses.Sum(e => e.Amount).ToString("N2")</h3>
+                        </div>
+                        <div class="bg-info bg-opacity-10 p-3 rounded-circle">
+                            <i class="bi bi-currency-pound text-info fs-4"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Expenses Table -->
+    <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white py-3">
+            <h5 class="mb-0 fw-semibold">Recent Expenses</h5>
+        </div>
+        <div class="card-body p-0">
+            @if (Model.Expenses.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="px-4 py-3">Date</th>
+                                <th>Category</th>
+                                <th>Description</th>
+                                <th>Amount</th>
+                                <th>Status</th>
+                                <th class="text-end px-4">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var expense in Model.Expenses)
+                            {
+                                <tr>
+                                    <td class="px-4 py-3">
+                                        <span class="text-muted small">@expense.ExpenseDate.ToString("dd MMM yyyy")</span>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-secondary bg-opacity-10 text-secondary">
+                                            @expense.CategoryName
+                                        </span>
+                                    </td>
+                                    <td>@expense.Description</td>
+                                    <td class="fw-semibold">£@expense.Amount.ToString("N2")</td>
+                                    <td>
+                                        @if (expense.StatusName == "Draft")
+                                        {
+                                            <span class="badge bg-secondary">Draft</span>
+                                        }
+                                        else if (expense.StatusName == "Submitted")
+                                        {
+                                            <span class="badge bg-warning">Pending</span>
+                                        }
+                                        else if (expense.StatusName == "Approved")
+                                        {
+                                            <span class="badge bg-success">Approved</span>
+                                        }
+                                        else if (expense.StatusName == "Rejected")
+                                        {
+                                            <span class="badge bg-danger">Rejected</span>
+                                        }
+                                    </td>
+                                    <td class="text-end px-4">
+                                        <a href="/ExpenseDetails?id=@expense.ExpenseId" class="btn btn-sm btn-outline-primary">
+                                            <i class="bi bi-eye me-1"></i>View
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="text-center py-5">
+                    <i class="bi bi-inbox fs-1 text-muted"></i>
+                    <p class="text-muted mt-3">No expenses found. Create your first expense to get started!</p>
+                    <a href="/CreateExpense" class="btn btn-primary mt-2">
+                        <i class="bi bi-plus-circle me-2"></i>Create Expense
+                    </a>
+                </div>
+            }
+        </div>
+    </div>
+</div>

@@ -1,0 +1,121 @@
+@page
+@model ChatModel
+@{
+    ViewData["Title"] = "AI Chat Assistant";
+}
+
+<div class="container-fluid py-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2 class="fw-bold text-primary">
+                <i class="bi bi-chat-dots me-2"></i>AI Chat Assistant
+            </h2>
+            <p class="text-muted">Ask questions about your expenses or manage them using natural language</p>
+        </div>
+    </div>
+
+    @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+    {
+        <div class="alert alert-warning alert-dismissible fade show" role="alert">
+            <strong>GenAI Not Configured:</strong> @Model.ErrorMessage
+            <br/><small>Please run deploy-chatui.sh to enable GenAI features.</small>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <div class="card border-0 shadow-sm" style="min-height: 600px;">
+                <div class="card-body d-flex flex-column">
+                    <div class="flex-grow-1 overflow-auto mb-3" id="chatMessages" style="max-height: 500px;">
+                        <div class="text-center text-muted py-5">
+                            <i class="bi bi-robot fs-1"></i>
+                            <p class="mt-3">Start a conversation by typing a message below</p>
+                            <div class="text-start mt-4">
+                                <p class="small"><strong>Example queries:</strong></p>
+                                <ul class="small">
+                                    <li>"Show me all my pending expenses"</li>
+                                    <li>"What's the total of my approved expenses?"</li>
+                                    <li>"Create a new expense for £45.50 taxi ride"</li>
+                                    <li>"List all expense categories"</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <input type="text" 
+                               class="form-control" 
+                               id="messageInput" 
+                               placeholder="Ask about expenses or request an action..."
+                               @(string.IsNullOrEmpty(Model.ErrorMessage) ? "" : "disabled")>
+                        <button class="btn btn-primary" 
+                                type="button" 
+                                id="sendButton"
+                                @(string.IsNullOrEmpty(Model.ErrorMessage) ? "" : "disabled")>
+                            <i class="bi bi-send me-1"></i>Send
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Chat functionality would be implemented here
+        // This is a placeholder for the GenAI chat integration
+        document.getElementById('sendButton')?.addEventListener('click', function() {
+            const input = document.getElementById('messageInput');
+            const message = input.value.trim();
+            
+            if (message) {
+                addMessage('user', message);
+                input.value = '';
+                
+                // Simulate AI response (in production, this would call the API)
+                setTimeout(() => {
+                    addMessage('assistant', 'GenAI chat is not fully configured yet. Please run deploy-chatui.sh to enable AI-powered responses.');
+                }, 500);
+            }
+        });
+        
+        document.getElementById('messageInput')?.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                document.getElementById('sendButton')?.click();
+            }
+        });
+        
+        function addMessage(role, content) {
+            const messagesDiv = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'mb-3';
+            
+            if (role === 'user') {
+                messageDiv.innerHTML = `
+                    <div class="d-flex justify-content-end">
+                        <div class="bg-primary text-white rounded p-3" style="max-width: 70%;">
+                            ${content}
+                        </div>
+                    </div>
+                `;
+            } else {
+                messageDiv.innerHTML = `
+                    <div class="d-flex">
+                        <div class="bg-light rounded p-3" style="max-width: 70%;">
+                            ${content}
+                        </div>
+                    </div>
+                `;
+            }
+            
+            // Clear placeholder if exists
+            if (messagesDiv.querySelector('.text-center')) {
+                messagesDiv.innerHTML = '';
+            }
+            
+            messagesDiv.appendChild(messageDiv);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+    </script>
+}

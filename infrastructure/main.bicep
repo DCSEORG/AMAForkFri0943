@@ -19,11 +19,8 @@ module genai 'genai.bicep' = if (deployGenAI) {
   params: {
     location: location
     managedIdentityId: appService.outputs.managedIdentityId
-    managedIdentityPrincipalId: reference(appService.outputs.managedIdentityId, '2023-01-31').principalId
+    managedIdentityPrincipalId: appService.outputs.managedIdentityPrincipalId
   }
-  dependsOn: [
-    appService
-  ]
 }
 
 output webAppName string = appService.outputs.webAppName

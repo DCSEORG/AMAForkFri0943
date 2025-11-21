@@ -12,7 +12,7 @@ The Expense Management System uses the following database schema:
 - **Expenses**: Main table storing expense records
 
 ### Key Fields:
-- Expenses use AmountMinor to store amounts in pence (e.g., £12.34 = 1234)
+- Expenses use AmountMinor to store amounts in pence (e.g., £12.34 is stored as 1234 pence)
 - Currency is always GBP (British Pounds)
 - Status workflow: Draft → Submitted → Approved/Rejected
 
